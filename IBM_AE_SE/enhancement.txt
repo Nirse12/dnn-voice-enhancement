@@ -1,0 +1,86 @@
+import keras
+from keras.callbacks import EarlyStopping
+import numpy as np
+from scipy.special import erf
+from python_speech_features import mfcc
+from keras.models import Sequential
+from keras.layers import Dense, Dropout, BatchNormalization,LeakyReLU
+from keras.models import model_from_json
+import matplotlib.pyplot as plt
+from keras.layers import Input, Dense,merge
+from keras.models import Model
+from keras.layers.noise import GaussianNoise
+from keras import backend as K
+from keras.models import load_model
+from keras.utils import multi_gpu_model
+from keras import regularizers
+import keras
+import sklearn
+from sklearn import metrics
+from sklearn.cluster import KMeans
+import soundfile as sf
+import scipy.io.wavfile as wav
+from python_speech_features import mfcc,delta
+import numpy as np
+import scipy.io as sio
+from keras.models import load_model
+import glob,os
+
+
+
+
+
+
+K=512
+overlap=0.75
+eps=2.2204*np.exp(-16)
+def enhancement(Rho_k,z,beta_enh=1):
+# Rho_k is the mask you are using
+# z is the STFT of the noisy input
+# beta_enh is the kind of enhancement
+
+
+    beta=0.04
+    long=0.008*16000*len(Rho_k.T)+512
+    long=int(long)
+    s_est=np.zeros((long,1))
+    
+    
+    
+    Rho=Rho_k#np.zeros((K/2+1,SEG_NO))
+    stft_size=int(K/2+1)
+    for seg in np.arange(1,Rho_k.shape[1]):
+        
+        time_cal=np.arange((seg-1)*K*(1-overlap)+1,(seg-1)*K*(1-overlap)+K+1)-1
+        time_cal=time_cal.astype('int64')
+        A1=(np.abs(z[:,seg-1]).reshape(stft_size,1))
+        P1=np.angle(z[:,seg-1]).reshape(stft_size,1)
+        a1=A1
+        rho=Rho[:,seg-1].reshape(stft_size,1)
+        if beta_enh==0:
+            Ahat=rho*a1
+        elif beta_enh==1:
+            Ahat=(a1**rho)*((beta*a1)**(1-rho))
+
+        alpha=0.97
+        Ahat=alpha*Ahat+(1-alpha)*a1
+        Ahat[0:3]=Ahat[0:3]*0.001
+        inv_Ahat=Ahat[::-1]
+        inv_Ahat=inv_Ahat[1:stft_size-1]
+        Ahatfull=np.append(Ahat,inv_Ahat).reshape(K,1)
+        
+        inv_Ahat_p=P1[::-1]
+        inv_Ahat_p=inv_Ahat_p[1:stft_size-1]
+        Ahatfull_p=np.append(P1,-inv_Ahat_p).reshape(K,1)
+        
+        Z2=Ahatfull*np.exp(1j*Ahatfull_p)
+        r1=np.real(np.fft.ifft(Z2.T))
+        
+        r2=r1.T*synt_win
+        s_est[time_cal,:]=s_est[time_cal,:]+r2
+    s_est=s_est/1.5/np.max(np.abs(s_est))
+    return (s_est)
+
+
+
+    

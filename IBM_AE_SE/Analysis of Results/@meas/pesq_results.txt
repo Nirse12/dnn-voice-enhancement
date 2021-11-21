@@ -1,0 +1,8 @@
+REFERENCE	 DEGRADED	 PESQMOS	 MOSLQO	 SAMPLE_FREQ	 MODE
+clean.wav	 total_net_prediction.wav	 -1.000	 1.476	 16000	wb
+clean.wav	 total_net_prediction.wav	 2.190	 1.798	 16000	nb
+clean.wav	 total_net_prediction.wav	 2.351	 1.964	 16000	nb
+clean.wav	 total_net_prediction.wav	 2.351	 1.964	 16000	nb
+clean.wav	 ibm_prediction.wav	 2.351	 1.964	 16000	nb
+clean.wav	 irm_prediction.wav	 2.351	 1.964	 16000	nb
+clean.wav	 spec_prediction.wav	 2.351	 1.964	 16000	nb
